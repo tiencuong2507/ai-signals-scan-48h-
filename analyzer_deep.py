@@ -79,16 +79,18 @@ def analyze(article: dict) -> dict | None:
             max_tokens=1200,
             messages=[{"role": "user", "content": prompt}],
         )
-        # claude-sonnet-5 có thể trả ThinkingBlock trước TextBlock
-        text_block = next((b for b in msg.content if hasattr(b, "text")), None)
+        # Tìm TextBlock theo type, bỏ qua ThinkingBlock
+        text_block = next((b for b in msg.content if getattr(b, "type", "") == "text"), None)
         if not text_block:
+            types = [getattr(b, "type", "?") for b in msg.content]
+            print(f"[WARN] No text block (deep), got: {types} — {article['title'][:50]}")
             return None
-        raw = text_block.text.strip()
-        # Extract JSON bất kể Claude có wrap thêm text gì
+        raw = (text_block.text or "").strip()
+        # Extract JSON
         start = raw.find("{")
         end = raw.rfind("}") + 1
         if start == -1 or end == 0:
-            print(f"[WARN] No JSON found (deep): {article['title'][:60]}")
+            print(f"[WARN] No JSON in response (deep): {raw[:120]!r}")
             return None
         raw = raw[start:end]
 
