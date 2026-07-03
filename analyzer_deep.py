@@ -79,7 +79,11 @@ def analyze(article: dict) -> dict | None:
             max_tokens=1200,
             messages=[{"role": "user", "content": prompt}],
         )
-        raw = msg.content[0].text.strip()
+        # claude-sonnet-5 có thể trả ThinkingBlock trước TextBlock
+        text_block = next((b for b in msg.content if hasattr(b, "text")), None)
+        if not text_block:
+            return None
+        raw = text_block.text.strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
