@@ -1,0 +1,40 @@
+name: AI Signals Scan 48H
+
+on:
+  schedule:
+    # Chạy lúc 22:00 UTC (05:00 SA giờ VN) mỗi 2 ngày — thứ Hai, thứ Tư, thứ Sáu
+    - cron: '0 22 * * 1,3,5'
+  workflow_dispatch:   # Cho phép chạy thủ công từ GitHub UI
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # Cần để commit HTML vào repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python main.py
+
+      - name: Commit newsletter
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/
+          git diff --staged --quiet && echo "No changes to commit" || \
+            git commit -m "📡 Scan $(date +'%Y-%m-%d %H:%M UTC')" && git push
