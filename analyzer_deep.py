@@ -84,11 +84,13 @@ def analyze(article: dict) -> dict | None:
         if not text_block:
             return None
         raw = text_block.text.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-            raw = raw.strip()
+        # Extract JSON bất kể Claude có wrap thêm text gì
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start == -1 or end == 0:
+            print(f"[WARN] No JSON found (deep): {article['title'][:60]}")
+            return None
+        raw = raw[start:end]
 
         data = json.loads(raw)
         if not data.get("relevant"):
