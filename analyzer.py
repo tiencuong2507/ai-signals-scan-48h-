@@ -29,12 +29,14 @@ Trả về JSON với các trường:
   "reliability_score": 1-10,
   "depth": "shallow" | "medium" | "deep",
   "practicality": "now" | "near_future" | "research",
+  "impact_score": 1-10,
   "summary_vi": "Tóm tắt chi tiết tiếng Việt gồm 4-5 câu:\\n• Công nghệ/giải pháp: [mô tả cụ thể là gì, hoạt động thế nào]\\n• Kết quả/số liệu: [con số, hiệu quả đo được nếu có, nếu không có ghi N/A]\\n• Tại sao quan trọng: [lý do đáng chú ý với ngành XD/SX/cơ điện lạnh VN]\\n• Ứng dụng thực tế: [có thể áp dụng cụ thể như thế nào tại VN]\\n• Lưu ý: [rủi ro, hạn chế, hoặc điều cần cân nhắc nếu có]"
 }}
 
 Quy tắc đánh giá:
 - relevant=true nếu bài liên quan đến AI/công nghệ trong XD/SX/Cơ điện lạnh, hoặc công nghệ nền tảng quan trọng (LLM, robotics, IoT, digital twin...)
 - reliability_score: 9-10=peer-reviewed/nghiên cứu có data; 7-8=báo chuyên ngành uy tín; 5-6=tin tức kỹ thuật; 3-4=blog/thông cáo; 1-2=hype không có bằng chứng
+- impact_score: 9-10=đột phá, thay đổi ngành; 7-8=quan trọng, nhiều người cần biết; 5-6=hữu ích; 3-4=thông tin tham khảo; 1-2=ít liên quan
 - depth: deep=có methodology rõ ràng và số liệu; medium=phân tích khá chi tiết; shallow=mô tả chung chung
 - practicality: now=công nghệ sẵn sàng thương mại; near_future=2-5 năm; research=còn trong nghiên cứu"""
 

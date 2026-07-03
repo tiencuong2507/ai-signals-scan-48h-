@@ -52,7 +52,7 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
         items = grouped.get(domain, [])
         if not items:
             continue
-        items.sort(key=lambda x: x.get("reliability_score", 0), reverse=True)
+        items.sort(key=lambda x: (x.get("impact_score", 0) + x.get("reliability_score", 0)), reverse=True)
         sections_html += _section(domain, items)
 
     date_str = run_time.strftime("%d/%m/%Y %H:%M UTC")
@@ -150,6 +150,9 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
   .badge-prac{{ background:#064e3b; border-color:#059669; color:#6ee7b7; }}
   .badge-prac-future{{ background:#1c1917; border-color:#78716c; color:#a8a29e; }}
   .badge-prac-research{{ background:#1f1035; border-color:#7c3aed; color:#c4b5fd; }}
+  .badge-impact-high{{ background:#1a2f1a; border-color:#f59e0b; color:#fbbf24; }}
+  .badge-impact-mid{{ background:#1a1a2f; border-color:#6366f1; color:#a5b4fc; }}
+  .badge-impact-low{{ background:#1f1f1f; border-color:#475569; color:#94a3b8; }}
 
   /* SUMMARY — rich multi-line */
   .summary{{ font-size:14px; color:#b0bfd0; line-height:1.85; margin-bottom:10px; }}
@@ -270,11 +273,14 @@ def _card(a: dict) -> str:
     prac     = a.get("practicality", "")
     summary  = a.get("summary_vi", "")
 
+    impact      = a.get("impact_score", 0)
     rel_class   = "rel-high" if rel >= 7 else ("rel-mid" if rel >= 5 else "rel-low")
     depth_label = DEPTH_LABELS.get(depth, depth)
     prac_label  = PRACTICALITY_LABELS.get(prac, prac)
     prac_class  = {"now":"badge-prac","near_future":"badge-prac-future",
                    "research":"badge-prac-research"}.get(prac, "badge-prac")
+    impact_class = "badge-impact-high" if impact >= 7 else ("badge-impact-mid" if impact >= 5 else "badge-impact-low")
+    impact_label = f"🔥 Tác động {impact}/10" if impact >= 7 else f"💡 Tác động {impact}/10"
 
     summary_html = ""
     if summary:
@@ -295,7 +301,8 @@ def _card(a: dict) -> str:
   <div class="card-source">{source} &nbsp;·&nbsp; {pub}</div>
   <div class="badges">
     <span class="badge badge-category">{category}</span>
-    <span class="badge {rel_class}">★ {rel}/10</span>
+    <span class="badge {impact_class}">{impact_label}</span>
+    <span class="badge {rel_class}">★ Tin cậy {rel}/10</span>
     <span class="badge badge-depth">{depth_label}</span>
     <span class="badge {prac_class}">{prac_label}</span>
   </div>

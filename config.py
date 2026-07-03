@@ -5,9 +5,29 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-MAX_ARTICLES_PER_RUN = 60   # Giới hạn bài phân tích mỗi lần chạy
+MAX_ARTICLES_PER_RUN = 80   # Giới hạn bài phân tích mỗi lần chạy (sau pre-filter)
 HOURS_BACK = 24             # Quét tin trong bao nhiêu giờ qua
 MIN_RELIABILITY = 4         # Chỉ giữ bài có độ tin cậy >= X
+
+# Keyword pre-filter — bài phải chứa ít nhất 1 từ khóa này (title + summary)
+RELEVANT_KEYWORDS = [
+    # AI / Công nghệ nền tảng
+    "ai", "artificial intelligence", "machine learning", "deep learning",
+    "llm", "robot", "automation", "computer vision", "neural", "model",
+    "sensor", "iot", "digital twin", "software", "algorithm", "data",
+    # Xây dựng
+    "construction", "building", "bim", "architect", "prefab", "concrete",
+    "structural", "infrastructure", "smart building", "modular", "drone",
+    # Sản xuất
+    "manufactur", "factory", "production", "industry 4", "cnc", "quality",
+    "supply chain", "assembly", "welding", "3d print", "additive",
+    # Cơ điện lạnh / MEP
+    "hvac", "heating", "cooling", "ventilation", "refrigerat", "mep",
+    "mechanical", "energy efficiency", "chiller", "heat pump", "vrf",
+    "compressor", "insulation", "thermal", "electr",
+    # GitHub repos
+    "github", "⭐",
+]
 
 RSS_SOURCES = [
     # ── AI & CÔNG NGHỆ ──────────────────────────────────────────────
