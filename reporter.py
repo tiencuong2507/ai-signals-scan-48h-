@@ -37,25 +37,25 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
 
     date_str = run_time.strftime("%d/%m/%Y %H:%M UTC")
     total = len(articles)
-
     counts = {d: len(grouped.get(d, [])) for d in domain_order}
-    stat_badges = "".join(
-        f'<span class="stat-badge">{DOMAIN_LABELS.get(d, d)}: <b>{counts[d]}</b></span>'
-        for d in domain_order if counts[d]
-    )
+
+    tab_buttons = '<button class="tab active" data-domain="all">🔎 Tất cả <span class="tab-count">{}</span></button>'.format(total)
+    for d in domain_order:
+        if counts[d]:
+            label = DOMAIN_LABELS.get(d, d)
+            tab_buttons += f'<button class="tab" data-domain="{d}">{label} <span class="tab-count">{counts[d]}</span></button>'
 
     return f"""<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Signals Scan 48H — {run_time.strftime('%d/%m/%Y')}</title>
+<title>AI Signals Scan — {run_time.strftime('%d/%m/%Y')}</title>
 <style>
   :root {{
     --bg: #0f1117; --surface: #1a1d27; --surface2: #222637;
     --border: #2d3148; --accent: #60a5fa; --green: #34d399;
-    --orange: #fb923c; --purple: #a78bfa; --yellow: #fbbf24;
-    --text: #e2e8f0; --muted: #64748b; --red: #f87171;
+    --orange: #fb923c; --purple: #a78bfa; --text: #e2e8f0; --muted: #64748b;
   }}
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
@@ -65,23 +65,33 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
 
   /* HEADER */
   .header {{ background: linear-gradient(135deg, #0f1b3d 0%, #1a0f2e 100%);
-             border-bottom: 1px solid var(--border); padding: 28px 24px 20px; }}
-  .header h1 {{ font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 1px; }}
+             border-bottom: 1px solid var(--border); padding: 24px 24px 0; }}
+  .header h1 {{ font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 1px; }}
   .header h1 span {{ color: var(--accent); }}
-  .header .meta {{ font-size: 11px; color: var(--muted); margin-top: 6px; }}
-  .stat-badges {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }}
-  .stat-badge {{ background: var(--surface2); border: 1px solid var(--border);
-                 border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--muted); }}
-  .stat-badge b {{ color: var(--text); }}
-  .total-badge {{ background: #1e3a5f; border-color: #2563eb;
-                  color: var(--accent); font-weight: 700; }}
+  .header .meta {{ font-size: 11px; color: var(--muted); margin-top: 4px; margin-bottom: 16px; }}
+
+  /* TABS */
+  .tabs {{ display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 0; }}
+  .tab {{
+    background: transparent; border: 1px solid var(--border); border-bottom: none;
+    border-radius: 8px 8px 0 0; padding: 8px 14px; font-size: 12px; font-weight: 600;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; gap: 6px;
+  }}
+  .tab:hover {{ background: var(--surface2); color: var(--text); }}
+  .tab.active {{ background: var(--bg); border-color: var(--accent); color: var(--accent); border-bottom: 2px solid var(--bg); margin-bottom: -1px; }}
+  .tab-count {{ background: var(--surface2); border-radius: 10px; padding: 1px 7px; font-size: 10px; color: var(--muted); }}
+  .tab.active .tab-count {{ background: #1e3a5f; color: var(--accent); }}
+
+  /* TAB BAR bottom border */
+  .tab-bar-border {{ border-bottom: 1px solid var(--accent); margin: 0 24px; }}
 
   /* LAYOUT */
   .container {{ max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }}
 
   /* SECTION */
-  .section {{ margin-bottom: 32px; }}
-  .section-title {{ font-size: 15px; font-weight: 700; padding: 10px 14px;
+  .section {{ margin-bottom: 28px; }}
+  .section-title {{ font-size: 14px; font-weight: 700; padding: 9px 14px;
                     border-radius: 8px 8px 0 0; border: 1px solid var(--border);
                     border-bottom: none; letter-spacing: 0.5px; }}
   .section-construction .section-title {{ background: #0f1f1a; color: #34d399; border-color: #065f46; }}
@@ -91,70 +101,83 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
 
   /* CARD */
   .card {{ background: var(--surface); border: 1px solid var(--border);
-           border-top: none; padding: 16px 18px; transition: background .15s; }}
+           border-top: none; padding: 14px 16px; transition: background .15s; }}
   .card:last-child {{ border-radius: 0 0 8px 8px; }}
   .card:not(:last-child) {{ border-bottom-color: var(--surface2); }}
   .card:hover {{ background: var(--surface2); }}
-
-  .card-header {{ display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }}
-  .card-title {{ font-size: 14px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.4; }}
-  .card-source {{ font-size: 10px; color: var(--muted); margin-top: 2px; }}
+  .card-title {{ font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.4;
+                 margin-bottom: 2px; }}
+  .card-source {{ font-size: 10px; color: var(--muted); margin-bottom: 8px; }}
 
   /* BADGES */
-  .badges {{ display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }}
-  .badge {{ border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600;
-            border: 1px solid; }}
-  .badge-category {{ background: #1e293b; border-color: #334155; color: #94a3b8; }}
-  .badge-reliability {{ color: #fff; }}
-  .rel-high  {{ background: #14532d; border-color: #16a34a; }}
-  .rel-mid   {{ background: #713f12; border-color: #d97706; }}
-  .rel-low   {{ background: #450a0a; border-color: #dc2626; }}
+  .badges {{ display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 9px; }}
+  .badge {{ border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600; border: 1px solid; }}
+  .badge-category  {{ background: #1e293b; border-color: #334155; color: #94a3b8; }}
+  .rel-high  {{ background: #14532d; border-color: #16a34a; color:#fff; }}
+  .rel-mid   {{ background: #713f12; border-color: #d97706; color:#fff; }}
+  .rel-low   {{ background: #450a0a; border-color: #dc2626; color:#fff; }}
   .badge-depth {{ background: #1e1b4b; border-color: #4338ca; color: #a5b4fc; }}
-  .badge-prac  {{ background: #064e3b; border-color: #059669; color: #6ee7b7; }}
-  .badge-prac-future {{ background: #1c1917; border-color: #78716c; color: #a8a29e; }}
-  .badge-prac-research {{ background: #1f1035; border-color: #7c3aed; color: #c4b5fd; }}
+  .badge-prac         {{ background: #064e3b; border-color: #059669; color: #6ee7b7; }}
+  .badge-prac-future  {{ background: #1c1917; border-color: #78716c; color: #a8a29e; }}
+  .badge-prac-research{{ background: #1f1035; border-color: #7c3aed; color: #c4b5fd; }}
 
   /* SUMMARY */
-  .summary {{ font-size: 12.5px; color: #94a3b8; line-height: 1.7;
-              border-left: 3px solid var(--border); padding-left: 12px; }}
-  .summary p {{ margin: 2px 0; }}
+  .summary {{ font-size: 12px; color: #94a3b8; line-height: 1.7;
+              border-left: 3px solid var(--border); padding-left: 10px; }}
 
   /* TAGS */
-  .tags {{ display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }}
+  .tags {{ display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }}
   .tag {{ background: #0f172a; border: 1px solid #1e293b; border-radius: 3px;
           padding: 1px 6px; font-size: 10px; color: var(--muted); }}
 
   /* FOOTER */
   .footer {{ text-align: center; padding: 20px; font-size: 11px; color: var(--muted);
              border-top: 1px solid var(--border); margin-top: 20px; }}
-  .footer a {{ color: var(--muted); }}
-
-  /* ARCHIVE LINK */
-  .archive-link {{ text-align: right; font-size: 11px; color: var(--muted);
-                   padding: 8px 0 0; }}
+  .archive-link {{ text-align: right; font-size: 11px; color: var(--muted); padding: 8px 0 4px; }}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>⚡ AI SIGNALS <span>SCAN</span> 48H</h1>
-  <div class="meta">Quét tự động lúc {date_str} &nbsp;·&nbsp; Xây dựng · Sản xuất · Cơ điện lạnh</div>
-  <div class="stat-badges">
-    <span class="stat-badge total-badge">Tổng: <b>{total} tín hiệu</b></span>
-    {stat_badges}
+  <h1>⚡ AI SIGNALS <span>SCAN</span></h1>
+  <div class="meta">Cập nhật lúc {date_str} &nbsp;·&nbsp; {total} tín hiệu hôm nay</div>
+  <div class="tabs">
+    {tab_buttons}
+  </div>
+</div>
+<div class="tab-bar-border"></div>
+
+<div class="container">
+  <div class="archive-link"><a href="archive/">📁 Bản tin cũ</a></div>
+  <div id="sections">
+    {sections_html}
   </div>
 </div>
 
-<div class="container">
-  <div class="archive-link"><a href="archive/">📁 Xem bản tin cũ</a></div>
-  {sections_html}
-</div>
-
 <div class="footer">
-  Tạo bởi AI Signals Scan 48H &nbsp;·&nbsp; Powered by Claude API
+  AI Signals Scan &nbsp;·&nbsp; Powered by Gemini Flash + GitHub Actions
   &nbsp;·&nbsp; <a href="archive/">Kho lưu trữ</a>
 </div>
 
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('.section');
+
+  tabs.forEach(tab => {{
+    tab.addEventListener('click', () => {{
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const domain = tab.dataset.domain;
+      sections.forEach(sec => {{
+        if (domain === 'all' || sec.dataset.domain === domain) {{
+          sec.style.display = '';
+        }} else {{
+          sec.style.display = 'none';
+        }}
+      }});
+    }});
+  }});
+</script>
 </body>
 </html>"""
 
@@ -163,34 +186,33 @@ def _section(domain: str, items: list) -> str:
     label = DOMAIN_LABELS.get(domain, domain)
     cards = "".join(_card(a) for a in items)
     return f"""
-<div class="section section-{domain}">
+<div class="section section-{domain}" data-domain="{domain}">
   <div class="section-title">{label} &nbsp;·&nbsp; {len(items)} bài</div>
   {cards}
 </div>"""
 
 
 def _card(a: dict) -> str:
-    title = a.get("title", "")
-    url = a.get("url", "#")
-    source = a.get("source", "")
-    pub = a.get("published_at", "")[:10]
-    category = a.get("category", "")
-    tags = a.get("tags", [])
-    rel = a.get("reliability_score", 0)
-    depth = a.get("depth", "")
-    prac = a.get("practicality", "")
-    summary_vi = a.get("summary_vi", "")
+    title   = a.get("title", "")
+    url     = a.get("url", "#")
+    source  = a.get("source", "")
+    pub     = a.get("published_at", "")[:10]
+    category= a.get("category", "")
+    tags    = a.get("tags", [])
+    rel     = a.get("reliability_score", 0)
+    depth   = a.get("depth", "")
+    prac    = a.get("practicality", "")
+    summary = a.get("summary_vi", "")
 
     rel_class = "rel-high" if rel >= 7 else ("rel-mid" if rel >= 5 else "rel-low")
-    rel_label = f"★ {rel}/10"
-
     depth_label = DEPTH_LABELS.get(depth, depth)
-    prac_label = PRACTICALITY_LABELS.get(prac, prac)
-    prac_class = {"now": "badge-prac", "near_future": "badge-prac-future", "research": "badge-prac-research"}.get(prac, "badge-prac")
+    prac_label  = PRACTICALITY_LABELS.get(prac, prac)
+    prac_class  = {"now": "badge-prac", "near_future": "badge-prac-future",
+                   "research": "badge-prac-research"}.get(prac, "badge-prac")
 
     summary_html = ""
-    if summary_vi:
-        lines = [l.strip() for l in summary_vi.split("\n") if l.strip()]
+    if summary:
+        lines = [l.strip() for l in summary.split("\n") if l.strip()]
         summary_html = '<div class="summary">' + "".join(f"<p>{l}</p>" for l in lines) + "</div>"
 
     tags_html = ""
@@ -199,15 +221,11 @@ def _card(a: dict) -> str:
 
     return f"""
 <div class="card">
-  <div class="card-header">
-    <div>
-      <div class="card-title"><a href="{url}" target="_blank">{title}</a></div>
-      <div class="card-source">{source} &nbsp;·&nbsp; {pub}</div>
-    </div>
-  </div>
+  <div class="card-title"><a href="{url}" target="_blank">{title}</a></div>
+  <div class="card-source">{source} &nbsp;·&nbsp; {pub}</div>
   <div class="badges">
     <span class="badge badge-category">{category}</span>
-    <span class="badge badge-reliability {rel_class}">{rel_label}</span>
+    <span class="badge {rel_class}">★ {rel}/10</span>
     <span class="badge badge-depth">{depth_label}</span>
     <span class="badge {prac_class}">{prac_label}</span>
   </div>
@@ -218,14 +236,13 @@ def _card(a: dict) -> str:
 
 def _update_archive_index():
     files = sorted(ARCHIVE_DIR.glob("*.html"), reverse=True)
-    items = ""
-    for f in files:
-        name = f.stem.replace("_", " ")
-        items += f'<li><a href="{f.name}">{name}</a></li>\n'
-
+    items = "".join(
+        f'<li><a href="{f.name}">{f.stem.replace("_", " ")}</a></li>\n'
+        for f in files
+    )
     html = f"""<!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><title>Kho lưu trữ — AI Signals 48H</title>
+<head><meta charset="UTF-8"><title>Kho lưu trữ — AI Signals</title>
 <style>
   body {{ background:#0f1117; color:#e2e8f0; font-family:'Segoe UI',sans-serif;
          max-width:600px; margin:40px auto; padding:0 16px; }}
@@ -235,12 +252,10 @@ def _update_archive_index():
   a {{ color:#93c5fd; text-decoration:none; }}
   a:hover {{ text-decoration:underline; }}
   .back {{ font-size:12px; margin-bottom:16px; }}
-</style>
-</head>
+</style></head>
 <body>
 <div class="back"><a href="../index.html">← Bản tin mới nhất</a></div>
 <h1>📁 Kho lưu trữ</h1>
 <ul>{items}</ul>
-</body>
-</html>"""
+</body></html>"""
     (ARCHIVE_DIR / "index.html").write_text(html, encoding="utf-8")
