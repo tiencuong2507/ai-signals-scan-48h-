@@ -1,6 +1,6 @@
 import json
-import anthropic
-from config import ANTHROPIC_API_KEY, MIN_RELIABILITY
+from google import genai
+from config import GEMINI_API_KEY, MIN_RELIABILITY
 
 _client = None
 
@@ -8,7 +8,7 @@ _client = None
 def _get_client():
     global _client
     if _client is None:
-        _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        _client = genai.Client(api_key=GEMINI_API_KEY)
     return _client
 
 
@@ -46,12 +46,19 @@ def analyze(article: dict) -> dict | None:
         summary=article["summary"],
     )
     try:
-        msg = _get_client().messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=700,
-            messages=[{"role": "user", "content": prompt}],
+        response = _get_client().models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
         )
-        raw = msg.content[0].text.strip()
+        raw = response.text.strip()
+
+        # Xử lý trường hợp Gemini bọc JSON trong markdown code block
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip()
+
         data = json.loads(raw)
 
         if not data.get("relevant"):
