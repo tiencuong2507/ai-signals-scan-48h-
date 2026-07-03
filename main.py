@@ -7,7 +7,7 @@ import analyzer_deep
 import reporter
 from collectors.rss_collector import fetch_all
 from collectors.github_trending import fetch_trending
-from config import MAX_ARTICLES_PER_RUN, MAX_ARTICLES_DEEP, RELEVANT_KEYWORDS, SCAN_MODE
+from config import MAX_ARTICLES_PER_RUN, MAX_ARTICLES_DEEP, RELEVANT_KEYWORDS, SCAN_MODE, GH_DISPATCH_TOKEN
 
 
 def _keyword_match(article: dict) -> bool:
@@ -81,7 +81,7 @@ def run():
 
     # 5. Generate newsletter (sorted by impact inside reporter)
     print("── [5/5] Generating newsletter...")
-    reporter.generate(analyzed, run_time)
+    reporter.generate(analyzed, run_time, gh_token=GH_DISPATCH_TOKEN)
 
     print(f"\n{'='*55}")
     print(f"  ✓ Done! {len(analyzed)} signals in this edition.")

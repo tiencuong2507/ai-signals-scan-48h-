@@ -26,11 +26,11 @@ REPO = "tiencuong2507/ai-signals-scan-48h-"
 ACTIONS_URL = f"https://github.com/{REPO}/actions/workflows/scan.yml"
 
 
-def generate(articles: list[dict], run_time: datetime):
+def generate(articles: list[dict], run_time: datetime, gh_token: str = ""):
     DOCS_DIR.mkdir(exist_ok=True)
     ARCHIVE_DIR.mkdir(exist_ok=True)
 
-    html = _build_html(articles, run_time)
+    html = _build_html(articles, run_time, gh_token)
 
     (DOCS_DIR / "index.html").write_text(html, encoding="utf-8")
     dated = run_time.strftime("%Y-%m-%d_%H-%M")
@@ -40,7 +40,7 @@ def generate(articles: list[dict], run_time: datetime):
     print(f"[OK] Newsletter saved → docs/index.html ({len(articles)} articles)")
 
 
-def _build_html(articles: list[dict], run_time: datetime) -> str:
+def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") -> str:
     grouped: dict[str, list] = {}
     for a in articles:
         d = a.get("domain", "ai_tech")
@@ -255,10 +255,9 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
       <h1>⚡ AI SIGNALS <span>SCAN</span></h1>
       <div class="meta">Cập nhật lúc {date_str} &nbsp;·&nbsp; {total} tín hiệu &nbsp;·&nbsp; Xây dựng · Sản xuất · Cơ điện lạnh</div>
     </div>
-    <a class="scan-btn" href="{ACTIONS_URL}" target="_blank" id="scanBtn"
-       onclick="handleScan(this)">
-      <span id="scanIcon">⚡</span> Quét ngay
-    </a>
+    <button class="scan-btn" id="scanBtn" onclick="triggerScan(this)">
+      <span id="scanIcon">⚡</span> <span id="scanLabel">Quét ngay</span>
+    </button>
   </div>
   <div class="tabs">{tab_buttons}</div>
 </div>
@@ -365,15 +364,58 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
   }});
 
   // ── SCAN BUTTON ──────────────────────────────────────────────────
-  function handleScan(el) {{
-    el.classList.add('loading');
+  const GH_TOKEN = "{gh_token}";
+  const DISPATCH_URL = "https://api.github.com/repos/{REPO}/actions/workflows/scan.yml/dispatches";
+
+  async function triggerScan(btn) {{
+    if (!GH_TOKEN) {{
+      window.open("{ACTIONS_URL}", "_blank");
+      return;
+    }}
+    btn.disabled = true;
     document.getElementById('scanIcon').className = 'spin';
     document.getElementById('scanIcon').textContent = '⟳';
-    setTimeout(() => {{
-      el.classList.remove('loading');
+    document.getElementById('scanLabel').textContent = 'Đang kích hoạt...';
+
+    try {{
+      const res = await fetch(DISPATCH_URL, {{
+        method: 'POST',
+        headers: {{
+          'Authorization': `Bearer ${{GH_TOKEN}}`,
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Content-Type': 'application/json',
+        }},
+        body: JSON.stringify({{ ref: 'main', inputs: {{ scan_mode: 'fast' }} }})
+      }});
+      if (res.status === 204) {{
+        document.getElementById('scanIcon').textContent = '✓';
+        document.getElementById('scanIcon').className = '';
+        document.getElementById('scanLabel').textContent = 'Đã kích hoạt! (~10 phút)';
+        btn.style.borderColor = '#16a34a';
+        btn.style.color = '#4ade80';
+        setTimeout(() => {{
+          btn.disabled = false;
+          btn.style.borderColor = '';
+          btn.style.color = '';
+          document.getElementById('scanIcon').textContent = '⚡';
+          document.getElementById('scanLabel').textContent = 'Quét ngay';
+        }}, 12000);
+      }} else {{
+        throw new Error(`HTTP ${{res.status}}`);
+      }}
+    }} catch(e) {{
+      document.getElementById('scanIcon').textContent = '⚠';
       document.getElementById('scanIcon').className = '';
-      document.getElementById('scanIcon').textContent = '⚡';
-    }}, 4000);
+      document.getElementById('scanLabel').textContent = 'Lỗi — thử lại';
+      btn.disabled = false;
+      btn.style.borderColor = '#dc2626';
+      setTimeout(() => {{
+        document.getElementById('scanIcon').textContent = '⚡';
+        document.getElementById('scanLabel').textContent = 'Quét ngay';
+        btn.style.borderColor = '';
+      }}, 4000);
+    }}
   }}
 
   // Init

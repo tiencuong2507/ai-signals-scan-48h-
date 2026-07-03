@@ -5,7 +5,8 @@ load_dotenv()
 
 GEMINI_API_KEY    = os.getenv("GEMINI_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-SCAN_MODE         = os.getenv("SCAN_MODE", "fast")  # "fast" | "deep"
+SCAN_MODE         = os.getenv("SCAN_MODE", "fast")   # "fast" | "deep"
+GH_DISPATCH_TOKEN = os.getenv("GH_DISPATCH_TOKEN", "")  # Fine-grained PAT, Actions R/W only
 
 MAX_ARTICLES_PER_RUN = 80   # fast mode
 MAX_ARTICLES_DEEP    = 30   # deep mode (Claude, tốn hơn)
