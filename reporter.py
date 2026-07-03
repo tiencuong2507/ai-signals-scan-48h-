@@ -1,7 +1,23 @@
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 from config import DOMAIN_LABELS, DEPTH_LABELS, PRACTICALITY_LABELS
+
+
+# Highlight số liệu, %, tỷ/triệu/billion/million trong summary
+_NUM_RE = re.compile(
+    r'(\b\d[\d,\.]*\s*(?:%|tỷ|triệu|billion|million|MW|GW|km²?|m²|USD|VNĐ|lần|x\d)\b'
+    r'|\b\d{2,}[\d,\.]*\b)',
+    re.IGNORECASE
+)
+
+def _highlight(text: str) -> str:
+    """Bold số liệu và wrap từ khóa quan trọng."""
+    text = _NUM_RE.sub(r'<strong class="hl-num">\1</strong>', text)
+    # highlight nội dung trong ngoặc kép
+    text = re.sub(r'"([^"]{3,60})"', r'"<em class="hl-quote">\1</em>"', text)
+    return text
 
 DOCS_DIR = Path("docs")
 ARCHIVE_DIR = DOCS_DIR / "archive"
@@ -62,23 +78,23 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
   }}
   *{{ box-sizing:border-box; margin:0; padding:0; }}
   body{{ background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif;
-        font-size:14px; line-height:1.6; }}
+        font-size:16px; line-height:1.7; }}
   a{{ color:var(--accent); text-decoration:none; }}
   a:hover{{ text-decoration:underline; }}
 
   /* HEADER */
   .header{{ background:linear-gradient(135deg,#0f1b3d 0%,#1a0f2e 100%);
-            border-bottom:1px solid var(--border); padding:20px 24px 0; }}
-  .header-top{{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }}
-  .header h1{{ font-size:20px; font-weight:800; color:#fff; letter-spacing:1px; }}
+            border-bottom:1px solid var(--border); padding:22px 24px 0; }}
+  .header-top{{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }}
+  .header h1{{ font-size:24px; font-weight:800; color:#fff; letter-spacing:1px; }}
   .header h1 span{{ color:var(--accent); }}
-  .header .meta{{ font-size:11px; color:var(--muted); margin-top:4px; }}
+  .header .meta{{ font-size:13px; color:var(--muted); margin-top:5px; }}
 
   /* SCAN BUTTON */
   .scan-btn{{
     display:inline-flex; align-items:center; gap:7px;
     background:#1e3a5f; border:1px solid #3b82f6; border-radius:8px;
-    padding:8px 16px; font-size:12px; font-weight:700; color:#93c5fd;
+    padding:10px 18px; font-size:14px; font-weight:700; color:#93c5fd;
     cursor:pointer; text-decoration:none; transition:all .2s; white-space:nowrap;
     flex-shrink:0;
   }}
@@ -91,22 +107,22 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
   .tabs{{ display:flex; flex-wrap:wrap; gap:5px; }}
   .tab{{
     background:transparent; border:1px solid var(--border); border-bottom:none;
-    border-radius:8px 8px 0 0; padding:7px 13px; font-size:12px; font-weight:600;
+    border-radius:8px 8px 0 0; padding:8px 15px; font-size:13px; font-weight:600;
     color:var(--muted); cursor:pointer; transition:all .15s;
     display:flex; align-items:center; gap:6px;
   }}
   .tab:hover{{ background:var(--surface2); color:var(--text); }}
   .tab.active{{ background:var(--bg); border-color:var(--accent); color:var(--accent); margin-bottom:-1px; }}
-  .tab-count{{ background:var(--surface2); border-radius:10px; padding:1px 7px; font-size:10px; color:var(--muted); }}
+  .tab-count{{ background:var(--surface2); border-radius:10px; padding:1px 8px; font-size:11px; color:var(--muted); }}
   .tab.active .tab-count{{ background:#1e3a5f; color:var(--accent); }}
   .tab-border{{ border-bottom:1px solid var(--accent); margin:0 24px; }}
 
   /* LAYOUT */
-  .container{{ max-width:960px; margin:0 auto; padding:20px 16px 60px; }}
+  .container{{ max-width:980px; margin:0 auto; padding:22px 18px 60px; }}
 
   /* SECTION */
-  .section{{ margin-bottom:24px; }}
-  .section-title{{ font-size:14px; font-weight:700; padding:9px 14px;
+  .section{{ margin-bottom:28px; }}
+  .section-title{{ font-size:16px; font-weight:700; padding:11px 16px;
                    border-radius:8px 8px 0 0; border:1px solid var(--border);
                    border-bottom:none; letter-spacing:0.5px; }}
   .section-construction .section-title{{ background:#0f1f1a; color:#34d399; border-color:#065f46; }}
@@ -116,17 +132,17 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
 
   /* CARD */
   .card{{ background:var(--surface); border:1px solid var(--border);
-          border-top:none; padding:14px 16px; transition:background .15s; }}
+          border-top:none; padding:18px 20px; transition:background .15s; }}
   .card:last-child{{ border-radius:0 0 8px 8px; }}
   .card:not(:last-child){{ border-bottom-color:var(--surface2); }}
   .card:hover{{ background:var(--surface2); }}
-  .card-title{{ font-size:13.5px; font-weight:600; color:var(--text); line-height:1.4; margin-bottom:2px; }}
-  .card-source{{ font-size:10px; color:var(--muted); margin-bottom:8px; }}
+  .card-title{{ font-size:16px; font-weight:700; color:var(--text); line-height:1.45; margin-bottom:4px; }}
+  .card-source{{ font-size:12px; color:var(--muted); margin-bottom:10px; }}
 
   /* BADGES */
-  .badges{{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }}
-  .badge{{ border-radius:4px; padding:2px 7px; font-size:10px; font-weight:600; border:1px solid; }}
-  .badge-category{{ background:#1e293b; border-color:#334155; color:#94a3b8; }}
+  .badges{{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }}
+  .badge{{ border-radius:5px; padding:3px 9px; font-size:11px; font-weight:600; border:1px solid; }}
+  .badge-category{{ background:#1e293b; border-color:#334155; color:#cbd5e1; }}
   .rel-high{{ background:#14532d; border-color:#16a34a; color:#fff; }}
   .rel-mid{{ background:#713f12; border-color:#d97706; color:#fff; }}
   .rel-low{{ background:#450a0a; border-color:#dc2626; color:#fff; }}
@@ -136,23 +152,44 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
   .badge-prac-research{{ background:#1f1035; border-color:#7c3aed; color:#c4b5fd; }}
 
   /* SUMMARY — rich multi-line */
-  .summary{{ font-size:12.5px; color:#94a3b8; line-height:1.8; margin-bottom:8px; }}
-  .summary p{{ padding:2px 0 2px 10px; border-left:2px solid var(--border); margin-bottom:4px; }}
-  .summary p:first-child{{ border-color:#3b82f6; }}
-  .summary p:nth-child(2){{ border-color:#10b981; }}
-  .summary p:nth-child(3){{ border-color:#f59e0b; }}
-  .summary p:nth-child(4){{ border-color:#8b5cf6; }}
-  .summary p:nth-child(5){{ border-color:#ef4444; }}
+  .summary{{ font-size:14px; color:#b0bfd0; line-height:1.85; margin-bottom:10px; }}
+
+  /* Dòng đầu tiên: highlight box nổi bật */
+  .summary p.line-first{{
+    background:linear-gradient(90deg,#0f2744 0%,#0f1f3d 100%);
+    border-left:3px solid #3b82f6;
+    border-radius:0 6px 6px 0;
+    padding:8px 12px;
+    margin-bottom:7px;
+    font-size:15px;
+    font-weight:600;
+    color:#e2e8f0;
+  }}
+  /* Dòng tiếp theo */
+  .summary p.line-other{{
+    padding:3px 0 3px 12px;
+    border-left:2px solid var(--border);
+    margin-bottom:5px;
+    color:#94a3b8;
+  }}
+  .summary p.line-other:nth-child(2){{ border-color:#10b981; }}
+  .summary p.line-other:nth-child(3){{ border-color:#f59e0b; color:#b0bfd0; }}
+  .summary p.line-other:nth-child(4){{ border-color:#8b5cf6; }}
+  .summary p.line-other:nth-child(5){{ border-color:#ef4444; }}
+
+  /* Highlight số liệu trong text */
+  .hl-num{{ color:#fbbf24; font-weight:700; font-style:normal; }}
+  .hl-quote{{ color:#86efac; font-style:italic; }}
 
   /* TAGS */
-  .tags{{ display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }}
-  .tag{{ background:#0f172a; border:1px solid #1e293b; border-radius:3px;
-         padding:1px 6px; font-size:10px; color:var(--muted); }}
+  .tags{{ display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; }}
+  .tag{{ background:#0f172a; border:1px solid #1e293b; border-radius:4px;
+         padding:2px 8px; font-size:11px; color:var(--muted); }}
 
   /* FOOTER */
-  .footer{{ text-align:center; padding:20px; font-size:11px; color:var(--muted);
+  .footer{{ text-align:center; padding:24px; font-size:13px; color:var(--muted);
             border-top:1px solid var(--border); margin-top:20px; }}
-  .archive-link{{ text-align:right; font-size:11px; color:var(--muted); padding:8px 0 4px; }}
+  .archive-link{{ text-align:right; font-size:12px; color:var(--muted); padding:10px 0 6px; }}
 </style>
 </head>
 <body>
@@ -242,7 +279,11 @@ def _card(a: dict) -> str:
     summary_html = ""
     if summary:
         lines = [l.strip() for l in summary.split("\n") if l.strip()]
-        summary_html = '<div class="summary">' + "".join(f"<p>{l}</p>" for l in lines) + "</div>"
+        parts = []
+        for i, line in enumerate(lines):
+            cls = "line-first" if i == 0 else "line-other"
+            parts.append(f'<p class="{cls}">{_highlight(line)}</p>')
+        summary_html = '<div class="summary">' + "".join(parts) + "</div>"
 
     tags_html = ""
     if tags:
