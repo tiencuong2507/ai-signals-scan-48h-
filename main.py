@@ -36,10 +36,14 @@ def run():
     raw_articles = raw_articles + github_repos
     print(f"     → {len(raw_articles)} total items fetched\n")
 
-    # 2. Deduplicate
+    # 2. Deduplicate (deep mode bỏ qua — luôn phân tích lại bài mới nhất)
     print("── [2/5] Deduplicating...")
-    new_articles = [a for a in raw_articles if not storage.is_seen(a["url"])]
-    print(f"     → {len(new_articles)} new (skipped {len(raw_articles) - len(new_articles)} seen)\n")
+    if is_deep:
+        new_articles = raw_articles
+        print(f"     → Deep mode: bỏ qua dedup, phân tích lại {len(new_articles)} bài\n")
+    else:
+        new_articles = [a for a in raw_articles if not storage.is_seen(a["url"])]
+        print(f"     → {len(new_articles)} new (skipped {len(raw_articles) - len(new_articles)} seen)\n")
 
     if not new_articles:
         print("  ✓ No new articles. Newsletter not updated.")
