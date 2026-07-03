@@ -76,7 +76,7 @@ def analyze(article: dict) -> dict | None:
     try:
         msg = _get_client().messages.create(
             model="claude-sonnet-5",
-            max_tokens=1200,
+            max_tokens=4096,
             messages=[{"role": "user", "content": prompt}],
         )
         # Tìm TextBlock theo type, bỏ qua ThinkingBlock
