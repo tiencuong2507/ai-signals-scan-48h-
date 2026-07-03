@@ -6,7 +6,7 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 MAX_ARTICLES_PER_RUN = 60   # Giới hạn bài phân tích mỗi lần chạy
-HOURS_BACK = 48             # Quét tin trong bao nhiêu giờ qua
+HOURS_BACK = 24             # Quét tin trong bao nhiêu giờ qua
 MIN_RELIABILITY = 4         # Chỉ giữ bài có độ tin cậy >= X
 
 RSS_SOURCES = [

@@ -2,8 +2,8 @@ name: AI Signals Scan 48H
 
 on:
   schedule:
-    # Chạy lúc 22:00 UTC (05:00 SA giờ VN) mỗi 2 ngày — thứ Hai, thứ Tư, thứ Sáu
-    - cron: '0 22 * * 1,3,5'
+    # Chạy lúc 22:00 UTC = 05:00 sáng giờ Việt Nam, mỗi ngày
+    - cron: '0 22 * * *'
   workflow_dispatch:   # Cho phép chạy thủ công từ GitHub UI
 
 jobs:
