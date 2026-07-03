@@ -64,6 +64,7 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
         if counts[d]:
             label = DOMAIN_LABELS.get(d, d)
             tab_buttons += f'<button class="tab" data-domain="{d}">{label} <span class="tab-count">{counts[d]}</span></button>'
+    tab_buttons += '<button class="tab" data-domain="saved" id="savedTab">⭐ Đã lưu <span class="tab-count" id="savedCount">0</span></button>'
 
     return f"""<!DOCTYPE html>
 <html lang="vi">
@@ -189,6 +190,57 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
   .tag{{ background:#0f172a; border:1px solid #1e293b; border-radius:4px;
          padding:2px 8px; font-size:11px; color:var(--muted); }}
 
+  /* KEY INSIGHT (deep mode) */
+  .key-insight{{
+    background:linear-gradient(90deg,#1a1500 0%,#1f1a05 100%);
+    border-left:3px solid #f59e0b; border-radius:0 6px 6px 0;
+    padding:8px 12px; margin-bottom:8px;
+    font-size:14px; font-weight:700; color:#fde68a;
+  }}
+  .key-insight::before{{ content:"💎 "; }}
+
+  /* ACTION ITEMS (deep mode) */
+  .action-items{{ margin-top:10px; }}
+  .action-items-title{{ font-size:11px; font-weight:700; color:#6ee7b7; text-transform:uppercase;
+                         letter-spacing:1px; margin-bottom:6px; }}
+  .action-item{{ display:flex; gap:8px; align-items:flex-start; padding:4px 0;
+                 font-size:13px; color:#94a3b8; }}
+  .action-item::before{{ content:"→"; color:#34d399; font-weight:700; flex-shrink:0; }}
+
+  /* BOOKMARK BUTTON */
+  .card-top{{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }}
+  .bookmark-btn{{
+    background:none; border:1px solid var(--border); border-radius:6px;
+    padding:4px 8px; cursor:pointer; font-size:16px; color:var(--muted);
+    transition:all .2s; flex-shrink:0; line-height:1;
+  }}
+  .bookmark-btn:hover{{ border-color:#f59e0b; color:#f59e0b; background:#1a1500; }}
+  .bookmark-btn.saved{{ border-color:#f59e0b; color:#f59e0b; background:#1a1500; }}
+
+  /* SAVED TAB SECTION */
+  #saved-section{{ display:none; }}
+  .saved-empty{{ text-align:center; color:var(--muted); padding:40px 20px; font-size:15px; }}
+  .saved-card{{
+    background:var(--surface); border:1px solid #f59e0b33; border-radius:8px;
+    padding:14px 16px; margin-bottom:10px; position:relative;
+  }}
+  .saved-card-title{{ font-size:15px; font-weight:700; margin-bottom:4px; }}
+  .saved-card-meta{{ font-size:12px; color:var(--muted); margin-bottom:8px; }}
+  .saved-card-summary{{ font-size:13px; color:#94a3b8; line-height:1.7; }}
+  .unsave-btn{{
+    position:absolute; top:12px; right:12px;
+    background:none; border:none; cursor:pointer; font-size:18px; color:#f59e0b;
+  }}
+  .unsave-btn:hover{{ color:#ef4444; }}
+  .saved-header{{ display:flex; align-items:center; justify-content:space-between;
+                   margin-bottom:14px; }}
+  .saved-header h2{{ font-size:16px; font-weight:700; color:#f59e0b; }}
+  .clear-all-btn{{
+    background:none; border:1px solid #dc2626; border-radius:6px;
+    padding:4px 10px; font-size:12px; color:#f87171; cursor:pointer;
+  }}
+  .clear-all-btn:hover{{ background:#450a0a; }}
+
   /* FOOTER */
   .footer{{ text-align:center; padding:24px; font-size:13px; color:var(--muted);
             border-top:1px solid var(--border); margin-top:20px; }}
@@ -215,6 +267,13 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
 <div class="container">
   <div class="archive-link"><a href="archive/">📁 Bản tin cũ</a></div>
   <div id="sections">{sections_html}</div>
+  <div id="saved-section">
+    <div class="saved-header">
+      <h2>⭐ Bài viết đã lưu</h2>
+      <button class="clear-all-btn" onclick="clearAllSaved()">Xóa tất cả</button>
+    </div>
+    <div id="saved-list"></div>
+  </div>
 </div>
 
 <div class="footer">
@@ -223,19 +282,89 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
 </div>
 
 <script>
-  // Tab filter
+  // ── BOOKMARK SYSTEM ──────────────────────────────────────────────
+  const STORE = 'ai_signals_saved';
+
+  function getSaved() {{
+    try {{ return JSON.parse(localStorage.getItem(STORE) || '{{}}'); }}
+    catch {{ return {{}}; }}
+  }}
+
+  function setSaved(data) {{
+    localStorage.setItem(STORE, JSON.stringify(data));
+  }}
+
+  function toggleBookmark(url, title, source, date, summary) {{
+    const saved = getSaved();
+    if (saved[url]) {{
+      delete saved[url];
+    }} else {{
+      saved[url] = {{ url, title, source, date, summary, savedAt: new Date().toLocaleDateString('vi-VN') }};
+    }}
+    setSaved(saved);
+    refreshBookmarkStates();
+    if (document.getElementById('saved-section').style.display !== 'none') renderSaved();
+  }}
+
+  function refreshBookmarkStates() {{
+    const saved = getSaved();
+    const count = Object.keys(saved).length;
+    document.getElementById('savedCount').textContent = count;
+    document.querySelectorAll('.bookmark-btn').forEach(btn => {{
+      const url = btn.dataset.url;
+      if (saved[url]) {{ btn.classList.add('saved'); btn.title = 'Bỏ lưu'; btn.textContent = '⭐'; }}
+      else {{ btn.classList.remove('saved'); btn.title = 'Lưu bài'; btn.textContent = '☆'; }}
+    }});
+  }}
+
+  function renderSaved() {{
+    const saved = getSaved();
+    const list = document.getElementById('saved-list');
+    const entries = Object.values(saved).reverse();
+    if (!entries.length) {{
+      list.innerHTML = '<div class="saved-empty">Chưa có bài nào được lưu.<br>Bấm ☆ trên bài viết để lưu.</div>';
+      return;
+    }}
+    list.innerHTML = entries.map(a => `
+      <div class="saved-card">
+        <button class="unsave-btn" onclick="toggleBookmark('${{a.url}}','${{a.title}}','${{a.source}}','${{a.date}}','${{a.summary}}')" title="Bỏ lưu">⭐</button>
+        <div class="saved-card-title"><a href="${{a.url}}" target="_blank">${{a.title}}</a></div>
+        <div class="saved-card-meta">${{a.source}} · ${{a.date}} · Đã lưu ${{a.savedAt}}</div>
+        <div class="saved-card-summary">${{a.summary.replace(/\\n/g,'<br>')}}</div>
+      </div>`).join('');
+  }}
+
+  function clearAllSaved() {{
+    if (confirm('Xóa tất cả bài đã lưu?')) {{
+      setSaved({{}});
+      refreshBookmarkStates();
+      renderSaved();
+    }}
+  }}
+
+  // ── TAB FILTER ───────────────────────────────────────────────────
   document.querySelectorAll('.tab').forEach(tab => {{
     tab.addEventListener('click', () => {{
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       const domain = tab.dataset.domain;
-      document.querySelectorAll('.section').forEach(sec => {{
-        sec.style.display = (domain === 'all' || sec.dataset.domain === domain) ? '' : 'none';
-      }});
+      const sectionsEl = document.getElementById('sections');
+      const savedEl = document.getElementById('saved-section');
+      if (domain === 'saved') {{
+        sectionsEl.style.display = 'none';
+        savedEl.style.display = '';
+        renderSaved();
+      }} else {{
+        sectionsEl.style.display = '';
+        savedEl.style.display = 'none';
+        document.querySelectorAll('.section').forEach(sec => {{
+          sec.style.display = (domain === 'all' || sec.dataset.domain === domain) ? '' : 'none';
+        }});
+      }}
     }});
   }});
 
-  // Scan button — mở GitHub Actions, đổi icon thành loading
+  // ── SCAN BUTTON ──────────────────────────────────────────────────
   function handleScan(el) {{
     el.classList.add('loading');
     document.getElementById('scanIcon').className = 'spin';
@@ -246,6 +375,9 @@ def _build_html(articles: list[dict], run_time: datetime) -> str:
       document.getElementById('scanIcon').textContent = '⚡';
     }}, 4000);
   }}
+
+  // Init
+  refreshBookmarkStates();
 </script>
 </body>
 </html>"""
@@ -295,18 +427,45 @@ def _card(a: dict) -> str:
     if tags:
         tags_html = '<div class="tags">' + "".join(f'<span class="tag">{t}</span>' for t in tags) + "</div>"
 
+    # Deep mode extras
+    key_insight = a.get("key_insight", "")
+    action_items = a.get("action_items", [])
+    is_deep = a.get("scan_mode") == "deep"
+
+    key_insight_html = f'<div class="key-insight">{key_insight}</div>' if key_insight else ""
+
+    actions_html = ""
+    if action_items:
+        items_html = "".join(f'<div class="action-item">{item}</div>' for item in action_items)
+        actions_html = f'<div class="action-items"><div class="action-items-title">Hành động gợi ý</div>{items_html}</div>'
+
+    deep_badge = '<span class="badge" style="background:#0f2744;border-color:#3b82f6;color:#60a5fa;">🔬 Deep</span>' if is_deep else ""
+
+    # Escape summary for JS attribute
+    summary_js = summary.replace("'", "\\'").replace('"', '&quot;').replace("\n", "\\n")[:300]
+
     return f"""
 <div class="card">
-  <div class="card-title"><a href="{url}" target="_blank">{title}</a></div>
-  <div class="card-source">{source} &nbsp;·&nbsp; {pub}</div>
+  <div class="card-top">
+    <div style="flex:1">
+      <div class="card-title"><a href="{url}" target="_blank">{title}</a></div>
+      <div class="card-source">{source} &nbsp;·&nbsp; {pub}</div>
+    </div>
+    <button class="bookmark-btn" data-url="{url}"
+      onclick="toggleBookmark('{url}','{title.replace(chr(39), '').replace(chr(34), '')}','{source}','{pub}','{summary_js}')"
+      title="Lưu bài">☆</button>
+  </div>
   <div class="badges">
+    {deep_badge}
     <span class="badge badge-category">{category}</span>
     <span class="badge {impact_class}">{impact_label}</span>
     <span class="badge {rel_class}">★ Tin cậy {rel}/10</span>
     <span class="badge badge-depth">{depth_label}</span>
     <span class="badge {prac_class}">{prac_label}</span>
   </div>
+  {key_insight_html}
   {summary_html}
+  {actions_html}
   {tags_html}
 </div>"""
 

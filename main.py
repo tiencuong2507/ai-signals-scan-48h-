@@ -3,10 +3,11 @@ from datetime import datetime, timezone
 
 import storage
 import analyzer
+import analyzer_deep
 import reporter
 from collectors.rss_collector import fetch_all
 from collectors.github_trending import fetch_trending
-from config import MAX_ARTICLES_PER_RUN, RELEVANT_KEYWORDS
+from config import MAX_ARTICLES_PER_RUN, MAX_ARTICLES_DEEP, RELEVANT_KEYWORDS, SCAN_MODE
 
 
 def _keyword_match(article: dict) -> bool:
@@ -20,6 +21,11 @@ def run():
     print(f"\n{'='*55}")
     print(f"  AI SIGNALS SCAN — {run_time.strftime('%Y-%m-%d %H:%M UTC')}")
     print(f"{'='*55}\n")
+
+    is_deep = SCAN_MODE == "deep"
+    cap = MAX_ARTICLES_DEEP if is_deep else MAX_ARTICLES_PER_RUN
+    mode_label = "🔬 DEEP (Claude Sonnet)" if is_deep else "⚡ FAST (Gemini Flash)"
+    print(f"  Mode: {mode_label}\n")
 
     storage.init_db()
 
@@ -46,15 +52,17 @@ def run():
     skipped_kw = len(new_articles) - len(pre_filtered)
     print(f"     → {len(pre_filtered)} passed keyword filter (dropped {skipped_kw} irrelevant)\n")
 
-    candidates = pre_filtered[:MAX_ARTICLES_PER_RUN]
-    if len(pre_filtered) > MAX_ARTICLES_PER_RUN:
-        print(f"     → Capping to {MAX_ARTICLES_PER_RUN} most recent\n")
+    candidates = pre_filtered[:cap]
+    if len(pre_filtered) > cap:
+        print(f"     → Capping to {cap} most recent\n")
 
-    # 4. Analyze with Gemini
-    print(f"── [4/5] Analyzing {len(candidates)} items with Gemini...")
+    # 4. Analyze
+    engine_label = "Claude Sonnet (deep)" if is_deep else "Gemini Flash (fast)"
+    print(f"── [4/5] Analyzing {len(candidates)} items with {engine_label}...")
+    analyze_fn = analyzer_deep.analyze if is_deep else analyzer.analyze
     analyzed = []
     for i, article in enumerate(candidates, 1):
-        result = analyzer.analyze(article)
+        result = analyze_fn(article)
         storage.save({**article, **(result or {})})
         if result:
             analyzed.append(result)
