@@ -56,7 +56,7 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
         items.sort(key=lambda x: (x.get("impact_score", 0) + x.get("reliability_score", 0)), reverse=True)
         sections_html += _section(domain, items)
 
-    date_str = run_time.strftime("%d/%m/%Y %H:%M UTC")
+    date_str = run_time.strftime("%d/%m/%Y %H:%M (GMT+7)")
     total = len(articles)
     counts = {d: len(grouped.get(d, [])) for d in domain_order}
 

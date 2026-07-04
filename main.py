@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import storage
 import analyzer
@@ -17,9 +17,10 @@ def _keyword_match(article: dict) -> bool:
 
 
 def run():
-    run_time = datetime.now(timezone.utc)
+    tz_hcm = timezone(timedelta(hours=7))
+    run_time = datetime.now(tz_hcm)
     print(f"\n{'='*55}")
-    print(f"  AI SIGNALS SCAN — {run_time.strftime('%Y-%m-%d %H:%M UTC')}")
+    print(f"  AI SIGNALS SCAN — {run_time.strftime('%Y-%m-%d %H:%M UTC+7')}")
     print(f"{'='*55}\n")
 
     is_deep = SCAN_MODE == "deep"
