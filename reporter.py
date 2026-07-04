@@ -62,9 +62,10 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
 
     tab_buttons = f'<button class="tab active" data-domain="all">🔎 Tất cả <span class="tab-count">{total}</span></button>'
     for d in domain_order:
-        if counts[d]:
-            label = DOMAIN_LABELS.get(d, d)
-            tab_buttons += f'<button class="tab" data-domain="{d}">{label} <span class="tab-count">{counts[d]}</span></button>'
+        label = DOMAIN_LABELS.get(d, d)
+        cnt = counts[d]
+        disabled = ' disabled style="opacity:.4;cursor:default"' if cnt == 0 else ''
+        tab_buttons += f'<button class="tab" data-domain="{d}"{disabled}>{label} <span class="tab-count">{cnt}</span></button>'
     tab_buttons += '<button class="tab" data-domain="saved" id="savedTab">⭐ Đã lưu <span class="tab-count" id="savedCount">0</span></button>'
 
     gh_token_b64 = base64.b64encode(gh_token.encode()).decode() if gh_token else ""

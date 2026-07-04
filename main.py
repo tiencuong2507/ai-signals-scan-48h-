@@ -1,5 +1,7 @@
+import json
 import time
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 import storage
 import analyzer
@@ -9,11 +11,39 @@ from collectors.rss_collector import fetch_all
 from collectors.github_trending import fetch_trending
 from config import MAX_ARTICLES_PER_RUN, MAX_ARTICLES_DEEP, RELEVANT_KEYWORDS, SCAN_MODE, GH_DISPATCH_TOKEN
 
+ARTICLES_CACHE = Path("docs/articles.json")
+CACHE_HOURS = 48
+
 
 def _keyword_match(article: dict) -> bool:
-    """Pre-filter nhanh bằng keyword trước khi gọi Gemini."""
     text = (article.get("title", "") + " " + article.get("summary", "")).lower()
     return any(kw.lower() in text for kw in RELEVANT_KEYWORDS)
+
+
+def _load_cache(now: datetime) -> list[dict]:
+    """Đọc bài đã phân tích trong 48h từ cache."""
+    if not ARTICLES_CACHE.exists():
+        return []
+    try:
+        data = json.loads(ARTICLES_CACHE.read_text(encoding="utf-8"))
+        cutoff = (now - timedelta(hours=CACHE_HOURS)).isoformat()
+        return [a for a in data if a.get("cached_at", "") >= cutoff]
+    except Exception:
+        return []
+
+
+def _save_cache(articles: list[dict], now: datetime):
+    """Ghi bài mới vào cache, giữ lại bài cũ trong 48h."""
+    existing = _load_cache(now)
+    existing_urls = {a["url"] for a in existing}
+    ts = now.isoformat()
+    for a in articles:
+        if a["url"] not in existing_urls:
+            a["cached_at"] = ts
+            existing.append(a)
+    ARTICLES_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    ARTICLES_CACHE.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
+    return existing
 
 
 def run():
@@ -47,7 +77,11 @@ def run():
         print(f"     → {len(new_articles)} new (skipped {len(raw_articles) - len(new_articles)} seen)\n")
 
     if not new_articles:
-        print("  ✓ No new articles. Newsletter not updated.")
+        print("  ✓ No new articles. Rebuilding newsletter from cache...")
+        cached = _load_cache(run_time)
+        if cached:
+            reporter.generate(cached, run_time, gh_token=GH_DISPATCH_TOKEN)
+            print(f"  ✓ Newsletter rebuilt from {len(cached)} cached articles.")
         return
 
     # 3. Sort by recency (newest first) + keyword pre-filter
@@ -84,12 +118,14 @@ def run():
         print("  ✓ No relevant articles found. Newsletter not updated.")
         return
 
-    # 5. Generate newsletter (sorted by impact inside reporter)
-    print("── [5/5] Generating newsletter...")
-    reporter.generate(analyzed, run_time, gh_token=GH_DISPATCH_TOKEN)
+    # 5. Merge với cache 48h rồi generate newsletter
+    print("── [5/5] Merging cache & generating newsletter...")
+    all_articles = _save_cache(analyzed, run_time)
+    print(f"     → {len(all_articles)} total articles in 48h window\n")
+    reporter.generate(all_articles, run_time, gh_token=GH_DISPATCH_TOKEN)
 
     print(f"\n{'='*55}")
-    print(f"  ✓ Done! {len(analyzed)} signals in this edition.")
+    print(f"  ✓ Done! {len(all_articles)} signals in this edition.")
     print(f"{'='*55}\n")
 
 
