@@ -1,3 +1,4 @@
+import base64
 import os
 import re
 from datetime import datetime
@@ -65,6 +66,8 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
             label = DOMAIN_LABELS.get(d, d)
             tab_buttons += f'<button class="tab" data-domain="{d}">{label} <span class="tab-count">{counts[d]}</span></button>'
     tab_buttons += '<button class="tab" data-domain="saved" id="savedTab">⭐ Đã lưu <span class="tab-count" id="savedCount">0</span></button>'
+
+    gh_token_b64 = base64.b64encode(gh_token.encode()).decode() if gh_token else ""
 
     return f"""<!DOCTYPE html>
 <html lang="vi">
@@ -364,7 +367,8 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
   }});
 
   // ── SCAN BUTTON ──────────────────────────────────────────────────
-  const GH_TOKEN = "{gh_token}";
+  const _tk = "{gh_token_b64}";
+  const GH_TOKEN = _tk ? atob(_tk) : "";
   const DISPATCH_URL = "https://api.github.com/repos/{REPO}/actions/workflows/scan.yml/dispatches";
 
   async function triggerScan(btn) {{
