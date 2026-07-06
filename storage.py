@@ -43,7 +43,7 @@ def save(article: dict):
             article["url"],
             article["title"],
             article["source"],
-            article["source_domain"],
+            article.get("source_domain", article.get("domain", "")),
             article.get("published_at", ""),
             datetime.utcnow().isoformat(),
             article.get("domain", ""),
