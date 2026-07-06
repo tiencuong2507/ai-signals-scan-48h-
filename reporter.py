@@ -93,15 +93,17 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
   .header h1 span{{ color:var(--accent); }}
   .header .meta{{ font-size:13px; color:var(--muted); margin-top:5px; }}
 
-  /* SCAN BUTTON */
+  /* SCAN BUTTONS */
+  .scan-btns{{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }}
   .scan-btn{{
     display:inline-flex; align-items:center; gap:7px;
-    background:#1e3a5f; border:1px solid #3b82f6; border-radius:8px;
-    padding:10px 18px; font-size:14px; font-weight:700; color:#93c5fd;
+    border-radius:8px; padding:10px 18px; font-size:14px; font-weight:700;
     cursor:pointer; text-decoration:none; transition:all .2s; white-space:nowrap;
-    flex-shrink:0;
+    border:1px solid #3b82f6; background:#1e3a5f; color:#93c5fd;
   }}
-  .scan-btn:hover{{ background:#2563eb; color:#fff; border-color:#60a5fa; text-decoration:none; }}
+  .scan-btn:hover{{ background:#2563eb; color:#fff; border-color:#60a5fa; }}
+  .scan-btn.deep{{ border-color:#a855f7; background:#2d1b4e; color:#d8b4fe; }}
+  .scan-btn.deep:hover{{ background:#7c3aed; color:#fff; border-color:#c084fc; }}
   .scan-btn.loading{{ opacity:.7; cursor:wait; }}
   .spin{{ display:inline-block; animation:spin .8s linear infinite; }}
   @keyframes spin{{ to{{transform:rotate(360deg)}} }}
@@ -257,9 +259,14 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
       <h1>⚡ AI SIGNALS <span>SCAN</span></h1>
       <div class="meta">Cập nhật lúc {date_str} &nbsp;·&nbsp; {total} tín hiệu &nbsp;·&nbsp; Xây dựng · Sản xuất · Cơ điện lạnh</div>
     </div>
-    <button class="scan-btn" id="scanBtn" onclick="triggerScan(this)">
-      <span id="scanIcon">⚡</span> <span id="scanLabel">Quét ngay</span>
-    </button>
+    <div class="scan-btns">
+      <button class="scan-btn" id="scanBtn" onclick="triggerScan(this,'fast')">
+        <span id="scanIcon">⚡</span> <span id="scanLabel">Quét nhanh</span>
+      </button>
+      <button class="scan-btn deep" id="scanDeepBtn" onclick="triggerScan(this,'deep')">
+        <span id="scanDeepIcon">🔬</span> <span id="scanDeepLabel">Quét sâu</span>
+      </button>
+    </div>
   </div>
   <div class="tabs">{tab_buttons}</div>
 </div>
@@ -368,43 +375,50 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
   // ── SCAN BUTTON ──────────────────────────────────────────────────
   const WORKER_URL = "https://aiscan.tiencuong2507.workers.dev";
 
-  async function triggerScan(btn) {{
+  async function triggerScan(btn, mode) {{
+    const isDeep = mode === 'deep';
+    const iconId = isDeep ? 'scanDeepIcon' : 'scanIcon';
+    const labelId = isDeep ? 'scanDeepLabel' : 'scanLabel';
+    const waitMsg = isDeep ? 'Đã kích hoạt! (~15 phút)' : 'Đã kích hoạt! (~10 phút)';
+    const defaultIcon = isDeep ? '🔬' : '⚡';
+    const defaultLabel = isDeep ? 'Quét sâu' : 'Quét nhanh';
+
     btn.disabled = true;
-    document.getElementById('scanIcon').className = 'spin';
-    document.getElementById('scanIcon').textContent = '⟳';
-    document.getElementById('scanLabel').textContent = 'Đang kích hoạt...';
+    document.getElementById(iconId).className = 'spin';
+    document.getElementById(iconId).textContent = '⟳';
+    document.getElementById(labelId).textContent = 'Đang kích hoạt...';
 
     try {{
       const res = await fetch(WORKER_URL, {{
         method: 'POST',
         headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ scan_mode: 'fast' }})
+        body: JSON.stringify({{ scan_mode: mode }})
       }});
       if (res.ok) {{
-        document.getElementById('scanIcon').textContent = '✓';
-        document.getElementById('scanIcon').className = '';
-        document.getElementById('scanLabel').textContent = 'Đã kích hoạt! (~10 phút)';
+        document.getElementById(iconId).textContent = '✓';
+        document.getElementById(iconId).className = '';
+        document.getElementById(labelId).textContent = waitMsg;
         btn.style.borderColor = '#16a34a';
         btn.style.color = '#4ade80';
         setTimeout(() => {{
           btn.disabled = false;
           btn.style.borderColor = '';
           btn.style.color = '';
-          document.getElementById('scanIcon').textContent = '⚡';
-          document.getElementById('scanLabel').textContent = 'Quét ngay';
-        }}, 12000);
+          document.getElementById(iconId).textContent = defaultIcon;
+          document.getElementById(labelId).textContent = defaultLabel;
+        }}, 15000);
       }} else {{
         throw new Error(`HTTP ${{res.status}}`);
       }}
     }} catch(e) {{
-      document.getElementById('scanIcon').textContent = '⚠';
-      document.getElementById('scanIcon').className = '';
-      document.getElementById('scanLabel').textContent = 'Lỗi: ' + e.message;
+      document.getElementById(iconId).textContent = '⚠';
+      document.getElementById(iconId).className = '';
+      document.getElementById(labelId).textContent = 'Lỗi: ' + e.message;
       btn.disabled = false;
       btn.style.borderColor = '#dc2626';
       setTimeout(() => {{
-        document.getElementById('scanIcon').textContent = '⚡';
-        document.getElementById('scanLabel').textContent = 'Quét ngay';
+        document.getElementById(iconId).textContent = defaultIcon;
+        document.getElementById(labelId).textContent = defaultLabel;
         btn.style.borderColor = '';
       }}, 8000);
     }}
