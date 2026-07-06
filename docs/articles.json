@@ -1161,5 +1161,29 @@
     "impact_score": 7,
     "summary_vi": "• Công nghệ/giải pháp: Đây là một môi trường làm việc (workbench) AI mã nguồn mở, được thiết kế để hỗ trợ nghiên cứu khoa học và phát triển các tác nhân AI (AI agents) phức tạp. Nó cung cấp các công cụ và khung làm việc cho phép các nhà khoa học và kỹ sư xây dựng, thử nghiệm các mô hình AI của riêng họ một cách linh hoạt, tập trung vào hiệu suất với ngôn ngữ TypeScript và runtime Bun.\n• Kết quả/số liệu: Dự án mới nổi với 385 lượt sao trên GitHub trong tuần, cho thấy sự quan tâm từ cộng đồng phát triển. Chưa có số liệu cụ thể về hiệu quả ứng dụng trong ngành hay hiệu suất của các mô hình AI được phát triển bằng công cụ này. N/A.\n• Tại sao quan trọng: Nền tảng này dân chủ hóa việc phát triển AI, giảm rào cản kỹ thuật và chi phí cho các doanh nghiệp và viện nghiên cứu tại Việt Nam trong các ngành xây dựng, sản xuất và cơ điện lạnh. Nó cho phép các tổ chức tự chủ hơn trong việc nghiên cứu và phát triển các giải pháp AI chuyên biệt, không phụ thuộc hoàn toàn vào các nền tảng thương mại.\n• Ứng dụng thực tế: Có thể được sử dụng để phát triển các AI agent giúp tối ưu hóa quy trình thiết kế BIM, dự đoán bảo trì thiết bị trong nhà máy sản xuất, phân tích dữ liệu lớn từ cảm biến IoT tại công trường để cải thiện an toàn và hiệu suất, hoặc mô phỏng hoạt động của hệ thống HVAC. Nó là công cụ nền tảng để xây dựng các giải pháp AI chuyên biệt.\n• Lưu ý: Mặc dù là mã nguồn mở, việc triển khai và tùy chỉnh môi trường này vẫn đòi hỏi kiến thức chuyên sâu về lập trình AI và khoa học dữ liệu. Các doanh nghiệp cần có đội ngũ kỹ sư đủ năng lực để tận dụng tối đa tiềm năng của nó, và các ứng dụng thực tế trong công nghiệp có thể cần thêm thời gian để nghiên cứu và thương mại hóa.",
     "cached_at": "2026-07-06T17:14:18.003276+07:00"
+  },
+  {
+    "url": "https://www.constructiondive.com/spons/4-ways-digital-displays-are-shaping-the-future-of-construction-jobsites/822875/",
+    "title": "4 ways digital displays are shaping the future of construction jobsites",
+    "summary": "Equip your jobsite with the industry standard for high-performance communication.",
+    "source": "Construction Dive",
+    "source_domain": "construction",
+    "published_at": "2026-07-06T09:00:00+00:00",
+    "relevant": true,
+    "domain": "construction",
+    "category": "Truyền thông số tại công trường",
+    "tags": [
+      "màn hình kỹ thuật số",
+      "truyền thông công trường",
+      "quản lý công trường",
+      "an toàn lao động",
+      "hiệu suất công trường"
+    ],
+    "reliability_score": 7,
+    "depth": "shallow",
+    "practicality": "now",
+    "impact_score": 7,
+    "summary_vi": "Tóm tắt chi tiết tiếng Việt gồm 4-5 câu:\n• Công nghệ/giải pháp: Bài viết đề cập đến vai trò của màn hình kỹ thuật số (digital displays) trong việc nâng cao truyền thông hiệu suất cao tại các công trường xây dựng, biến chúng thành tiêu chuẩn công nghiệp.\n• Kết quả/số liệu: N/A (nội dung cung cấp không có số liệu cụ thể), nhưng giải pháp hướng đến việc cải thiện giao tiếp và hiệu quả làm việc.\n• Tại sao quan trọng: Tại Việt Nam, việc nâng cao chất lượng truyền thông trên công trường là rất quan trọng để đảm bảo an toàn lao động, tiến độ dự án và phối hợp giữa các bên. Màn hình kỹ thuật số giúp cung cấp thông tin kịp thời, rõ ràng và tập trung cho toàn bộ nhân sự.\n• Ứng dụng thực tế: Các công ty xây dựng tại Việt Nam có thể triển khai màn hình kỹ thuật số tại các khu vực tập trung như cổng ra vào, phòng họp công trường, khu vực nghỉ ngơi để hiển thị thông báo an toàn, kế hoạch làm việc hàng ngày, tiến độ dự án, thông tin thời tiết hoặc các bản vẽ cập nhật.\n• Lưu ý: Việc áp dụng đòi hỏi đầu tư vào các màn hình chuyên dụng có độ bền cao, chống chịu được điều kiện khắc nghiệt của công trường (bụi, nước, va đập) và một hệ thống quản lý nội dung linh hoạt, dễ dàng cập nhật thông tin từ nhiều nguồn khác nhau.",
+    "cached_at": "2026-07-06T17:26:13.377192+07:00"
   }
 ]
