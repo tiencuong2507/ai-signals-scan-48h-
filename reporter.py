@@ -399,14 +399,14 @@ def _build_html(articles: list[dict], run_time: datetime, gh_token: str = "") ->
     }} catch(e) {{
       document.getElementById('scanIcon').textContent = '⚠';
       document.getElementById('scanIcon').className = '';
-      document.getElementById('scanLabel').textContent = 'Lỗi — thử lại';
+      document.getElementById('scanLabel').textContent = 'Lỗi: ' + e.message;
       btn.disabled = false;
       btn.style.borderColor = '#dc2626';
       setTimeout(() => {{
         document.getElementById('scanIcon').textContent = '⚡';
         document.getElementById('scanLabel').textContent = 'Quét ngay';
         btn.style.borderColor = '';
-      }}, 4000);
+      }}, 8000);
     }}
   }}
 
