@@ -9,6 +9,8 @@ import analyzer_deep
 import reporter
 from collectors.rss_collector import fetch_all
 from collectors.github_trending import fetch_trending
+from collectors.google_news import fetch_google_news
+from collectors.reddit import fetch_reddit
 from config import MAX_ARTICLES_PER_RUN, MAX_ARTICLES_DEEP, RELEVANT_KEYWORDS, SCAN_MODE, GH_DISPATCH_TOKEN
 
 ARTICLES_CACHE = Path("docs/articles.json")
@@ -64,7 +66,9 @@ def run():
     print("── [1/5] Fetching sources...")
     raw_articles = fetch_all()
     github_repos = fetch_trending(days_back=7, top_n=20)
-    raw_articles = raw_articles + github_repos
+    google_articles = fetch_google_news(max_per_query=6)
+    reddit_posts = fetch_reddit(max_per_sub=6)
+    raw_articles = raw_articles + github_repos + google_articles + reddit_posts
     print(f"     → {len(raw_articles)} total items fetched\n")
 
     # 2. Deduplicate (deep mode bỏ qua — luôn phân tích lại bài mới nhất)
