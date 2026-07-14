@@ -2687,5 +2687,52 @@
     "impact_score": 7,
     "summary_vi": "• Công nghệ/giải pháp: Tiêu đề cho thấy Autec Carrier đang nhắm mục tiêu vào thị trường các hệ thống thu hồi nhiệt thải dựa trên công nghệ bơm nhiệt. Giải pháp này sử dụng bơm nhiệt để thu hồi nhiệt lượng bị lãng phí từ các quy trình công nghiệp, hoạt động của tòa nhà, hoặc các nguồn khác, sau đó chuyển đổi và sử dụng lại nhiệt lượng đó cho mục đích sưởi ấm, làm nóng nước, hoặc các quy trình sản xuất khác, thay vì để nó thoát ra môi trường.\n• Kết quả/số liệu: N/A (Tiêu đề không cung cấp số liệu cụ thể).\n• Tại sao quan trọng: Công nghệ này rất quan trọng đối với Việt Nam trong bối cảnh giá năng lượng tăng cao và nhu cầu phát triển bền vững. Nó giúp giảm đáng kể chi phí vận hành cho các nhà máy, tòa nhà thương mại, và các cơ sở sản xuất bằng cách tận dụng nguồn năng lượng miễn phí từ nhiệt thải, đồng thời giảm lượng khí thải carbon, góp phần vào mục tiêu net-zero của quốc gia.\n• Ứng dụng thực tế: Tại Việt Nam, hệ thống này có thể được áp dụng rộng rãi trong các khu công nghiệp để thu hồi nhiệt từ quá trình sản xuất thép, dệt may, thực phẩm và đồ uống; trong các tòa nhà lớn, khách sạn, bệnh viện để làm nóng nước và hệ thống sưởi; và trong các trung tâm dữ liệu để tận dụng nhiệt thải từ máy chủ.\n• Lưu ý: Việc triển khai cần đánh giá kỹ lưỡng về nguồn nhiệt thải, nhiệt độ yêu cầu và chi phí đầu tư ban đầu so với lợi ích tiết kiệm năng lượng dài hạn. Cần có sự tư vấn từ các chuyên gia về hệ thống HVAC và kỹ thuật nhiệt.",
     "cached_at": "2026-07-15T05:56:39.805042+07:00"
+  },
+  {
+    "url": "https://techcrunch.com/2026/07/14/lorde-says-ai-glasses-are-not-sexy/",
+    "title": "Lorde says AI glasses are “not sexy”",
+    "summary": "\"Increasingly in our world, it gets harder and harder to know what is real,\" Lorde said on stage.",
+    "source": "TechCrunch AI",
+    "source_domain": "ai_tech",
+    "published_at": "2026-07-14T23:10:02+00:00",
+    "relevant": true,
+    "domain": "ai_tech",
+    "category": "Công nghệ AI đeo được và nhận thức xã hội",
+    "tags": [
+      "AI glasses",
+      "Wearable AI",
+      "Augmented Reality",
+      "Perception of AI",
+      "Tech Adoption Challenges"
+    ],
+    "reliability_score": 7,
+    "depth": "shallow",
+    "practicality": "now",
+    "impact_score": 3,
+    "summary_vi": "• Công nghệ/giải pháp: Bài viết đề cập đến kính AI (AI glasses), một dạng thiết bị đeo thông minh tích hợp trí tuệ nhân tạo. Những thiết bị này thường được thiết kế để cung cấp thông tin, hỗ trợ thực tế tăng cường (AR), hoặc cải thiện tương tác người dùng thông qua các tính năng thông minh.\n• Kết quả/số liệu: N/A. Nội dung chỉ là một nhận định cá nhân của nghệ sĩ Lorde về tính thẩm mỹ (\"not sexy\") và tác động nhận thức của kính AI (\"what is real\"), không có dữ liệu hoặc kết quả kỹ thuật cụ thể.\n• Tại sao quan trọng: Mặc dù là một bình luận xã hội, quan điểm này phản ánh thách thức lớn trong việc chấp nhận công nghệ AI đeo được. Đối với các ngành xây dựng, sản xuất và cơ điện lạnh tại Việt Nam, sự thành công của việc triển khai kính AI không chỉ phụ thuộc vào hiệu quả kỹ thuật mà còn vào yếu tố thiết kế, sự thoải mái và sẵn lòng sử dụng của người lao động.\n• Ứng dụng thực tế: Kính AI có thể được ứng dụng để hỗ trợ đào tạo tại chỗ, hướng dẫn công việc (ví dụ: lắp đặt thiết bị HVAC, kiểm tra chất lượng sản phẩm), giám sát an toàn lao động và cung cấp thông tin kỹ thuật tức thời trong môi trường làm việc khắc nghiệt.\n• Lưu ý: Bình luận của Lorde nhấn mạnh rằng thiết kế, tính tiện dụng và sự chấp nhận xã hội là những rào cản tiềm năng cho việc áp dụng rộng rãi công nghệ này. Các doanh nghiệp cần cân nhắc yếu tố trải nghiệm người dùng và văn hóa khi triển khai các giải pháp AI đeo được tại Việt Nam.",
+    "cached_at": "2026-07-15T06:24:36.070405+07:00"
+  },
+  {
+    "url": "https://www.theverge.com/ai-artificial-intelligence/965670/openai-chatgpt-ai-smart-speaker-hardware-device",
+    "title": "OpenAI may announce a ChatGPT smart speaker this year",
+    "summary": "OpenAI's first device is set to be a smart speaker that lets you talk with ChatGPT, according to a report from Bloomberg. The device apparently won't have a screen, but will use a camera and additional sensors to \"understand\" your environment. The report comes just days after Apple filed a lawsuit against OpenAI that accused [&#8230;]",
+    "source": "The Verge AI",
+    "source_domain": "ai_tech",
+    "published_at": "2026-07-14T21:26:32+00:00",
+    "relevant": true,
+    "domain": "ai_tech",
+    "category": "Thiết bị trợ lý ảo AI",
+    "tags": [
+      "AI",
+      "ChatGPT",
+      "Trợ lý ảo",
+      "Giao diện giọng nói"
+    ],
+    "reliability_score": 6,
+    "depth": "shallow",
+    "practicality": "near_future",
+    "impact_score": 7,
+    "summary_vi": "Tóm tắt chi tiết tiếng Việt gồm 4-5 câu:\n• Công nghệ/giải pháp: OpenAI được cho là đang phát triển một loa thông minh tích hợp ChatGPT, đây có thể là thiết bị phần cứng đầu tiên của hãng. Thiết bị này dự kiến không có màn hình, nhưng sẽ sử dụng camera và các cảm biến bổ sung để 'hiểu' môi trường xung quanh, cho phép người dùng tương tác bằng giọng nói với ChatGPT.\n• Kết quả/số liệu: N/A. Bài viết chỉ là tin đồn về một sản phẩm sắp ra mắt, chưa có thông tin về kết quả thử nghiệm hay số liệu hiệu suất cụ thể.\n• Tại sao quan trọng: Sự ra đời của một thiết bị AI với giao diện giọng nói và khả năng hiểu ngữ cảnh môi trường có tiềm năng đáng kể trong việc cải thiện hiệu quả làm việc. Trong ngành xây dựng, sản xuất và cơ điện lạnh, nó có thể trở thành công cụ hỗ trợ cho nhân viên hiện trường, kỹ sư, hoặc công nhân vận hành máy móc, đặc biệt trong các tình huống cần thao tác rảnh tay hoặc truy xuất thông tin nhanh chóng.\n• Ứng dụng thực tế: Thiết bị này có thể được phát triển thành các trợ lý đeo được hoặc tích hợp vào môi trường làm việc để cung cấp hướng dẫn thi công, hỗ trợ kiểm tra chất lượng, tra cứu thông tin kỹ thuật, hoặc điều khiển thiết bị thông qua giọng nói tại Việt Nam. Ví dụ, công nhân có thể hỏi ChatGPT về quy trình lắp đặt một linh kiện phức tạp mà không cần dừng công việc.\n• Lưu ý: Đây vẫn là tin đồn ban đầu, cần xem xét khả năng tích hợp vào các môi trường công nghiệp khắc nghiệt, độ chính xác của AI trong việc nhận diện ngữ cảnh phức tạp, cũng như các vấn đề về bảo mật dữ liệu và quyền riêng tư khi triển khai rộng rãi.",
+    "cached_at": "2026-07-15T06:24:36.070405+07:00"
   }
 ]
